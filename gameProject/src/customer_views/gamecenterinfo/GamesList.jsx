@@ -4,6 +4,16 @@ import axios from "axios";
 const GamesList = () => {
   const [games, setGames] = useState([]);
   const centerUser = sessionStorage.getItem("centeruser");
+  const [consoles, setConsoles] = useState([]);
+  const [selectedPlatform, setSelectedPlatform] = useState("");
+  const [price,setPrice] = useState(0);
+
+  const fetchConsoles = async() =>{
+    axios.get(`http://localhost:8080/consoles/list/${centerUser}`).then((res) => {
+        setConsoles(res.data);
+      });
+}
+
 
   useEffect(() => {
     const gamesFetch = async() =>{
@@ -11,16 +21,18 @@ const GamesList = () => {
         .then((res) => {
             setGames(res.data);
         });
-    }
-
+      }
+    fetchConsoles();
     gamesFetch();
   }, []);
-
-  const [selectedPlatform, setSelectedPlatform] = useState("");
 
     const handlePlatformChange = (e) => {
         const platform = e.target.value;
         setSelectedPlatform(platform);
+        const matchingConsole = consoles.find(console => console.consoleName === platform);
+        console.log(matchingConsole);
+        setPrice(matchingConsole ? matchingConsole.pricePerHour : " not available ");
+        
     };
 
   return (
@@ -65,7 +77,7 @@ const GamesList = () => {
 
                 
                 <p className="text-center">
-                  <strong>Price:</strong> ${game.price} per/hr
+                  <strong>Price:</strong> Rs.{price} per/hr
                 </p>
 
                 
