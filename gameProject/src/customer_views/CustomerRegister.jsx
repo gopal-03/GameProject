@@ -105,7 +105,7 @@ const RegisterPage = () => {
         </div>
         <button type="submit" className="btn btn-primary">Register</button>
       </form><br/>
-      <Link to={navigate("/customer/login/")}>existing user?</Link>
+      <Link to="/customer/login/">existing user?</Link>
     </div>
   );
 };
