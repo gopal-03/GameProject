@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import axios from "axios";
+import Modal from "react-modal";
 import {Link, useNavigate} from "react-router-dom";
+import "./RegisterPage.css";
+
+Modal.setAppElement("#root");
 
 const RegisterPage = () => {
 
@@ -8,6 +12,11 @@ const RegisterPage = () => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [districts, setDistricts] = useState([]);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [formData, setFormData] = useState({
     adminUsername: '',
     adminName: '',
@@ -66,6 +75,40 @@ const RegisterPage = () => {
 
   };
 
+  const sendOtp = async () => {
+    try {
+      await axios.post(
+        'http://localhost:8080/send-otp',
+        new URLSearchParams({ mobileNumber }).toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+      setIsOtpSent(true);
+    } catch (error) {
+      console.error('Error sending OTP:', error.response || error.message);
+    }
+  };
+  
+  const verifyOtp = async () => {
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/verify-otp',
+        new URLSearchParams({ mobileNumber, otp }).toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+      if (response.data === 'OTP verified successfully') {
+        setIsVerified(true);
+        handleSubmit();
+        alert('OTP verified successfully!');
+        navigate('/admin/loginpage/');
+      } else {
+        alert('Invalid OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error.response || error.message);
+    }
+  };
+  
+
   const handleStateChange = (e) => {
     const state = e.target.value;
     setSelectedState(state);
@@ -102,9 +145,8 @@ const RegisterPage = () => {
   };
   
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+  const handleSubmit = async () => {
+
     const formDataToSend = new FormData();
     formDataToSend.append("adminUsername", formData.adminUsername);
     formDataToSend.append("shopName", formData.shopName);
@@ -132,19 +174,73 @@ const RegisterPage = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      navigate("/admin/loginpage/");
     } catch (error) {
       console.error("Error submitting form:", error.response || error.message);
     }
   };
+
+  const handleRegButt = (e) =>{
+    e.preventDefault();
+
+    setShowOtpPopup(true);
+
+  }
   
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100 bg-light">
+
+    <div className="register-container">
+
+      {showOtpPopup && !isOtpSent && (
+        <div className="overlay">
+          <div className="overlay-content">
+            <button className="close-btn" onClick={() => setShowOtpPopup(false)}>&times;</button>
+            <div className="overlay-form">
+              <label htmlFor="mobileNumber">Enter Mobile Number</label>
+              <input
+                type="text"
+                id="mobileNumber"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+              />
+              <button onClick={sendOtp}>Send OTP</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isOtpSent && !isVerified && (
+        <div className="overlay">
+          <div className="overlay-content">
+            <button className="close-btn" onClick={() => setIsOtpSent(false)}>&times;</button>
+            <div className="overlay-form">
+              <label htmlFor="otp">Enter OTP</label>
+              <input
+                type="text"
+                id="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <button onClick={verifyOtp}>Verify OTP</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isVerified && (
+        <div className="overlay">
+          <div className="overlay-content">
+            <h3>Registration Successful!</h3>
+          </div>
+        </div>
+      )}
+    </div>
+
       <div style={{ width: '100%', maxWidth: '500px', borderRadius: '10px', height:'100%'}}>
         <div className="card-body">
           <h5 className="card-title text-center mb-4">Register Your Shop in Book My Game</h5>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleRegButt}>
             <div className="mb-3">
               <label htmlFor="adminUsername" className="form-label">Username</label>
               <input
