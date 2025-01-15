@@ -34,52 +34,52 @@ import com.example.demo.service.AdminRegService;
 @CrossOrigin("http://localhost:5173/")
 public class AdminController {
 	
-//	private final Map<String, Long> otpExpiryStorage = new HashMap<>();
-//    
-//    private final Map<String, Integer> otpStorage = new HashMap<>();
-//    private final String SENDER_PHONE_NUMBER = "+12184192188";
-//
+	private final Map<String, Long> otpExpiryStorage = new HashMap<>();
+    
+    private final Map<String, Integer> otpStorage = new HashMap<>();
+    private final String SENDER_PHONE_NUMBER = "+12184192188";
+
     @Autowired
     private AdminRegService adminRegService;
-//
-//    @PostMapping("/send-otp")
-//    public String sendOtp(@RequestParam String mobileNumber) {
-//    	String formattedNumber = "+91" + mobileNumber; // For India
-//        Random random = new Random();
-//        int otp = 100000 + random.nextInt(900000);
-//        otpStorage.put(mobileNumber, otp);
-//        otpExpiryStorage.put(mobileNumber, System.currentTimeMillis() + 5 * 60 * 1000);
-//
-//        Message.creator(
-//                new PhoneNumber(formattedNumber),
-//                new PhoneNumber(SENDER_PHONE_NUMBER),
-//                "Your OTP is: " + otp
-//        ).create();
-//
-//        return "OTP sent successfully";
-//    }
-//
-//    @PostMapping("/verify-otp")
-//    public String verifyOtp(@RequestParam String mobileNumber, @RequestParam int otp) {
-//        Integer storedOtp = otpStorage.get(mobileNumber);
-//        Long expiryTime = otpExpiryStorage.get(mobileNumber);
-//
-//        if (storedOtp != null && expiryTime != null) {
-//            if (System.currentTimeMillis() > expiryTime) {
-//                otpStorage.remove(mobileNumber);
-//                otpExpiryStorage.remove(mobileNumber);
-//                return "OTP expired";
-//            }
-//
-//            if (storedOtp == otp) {
-//                otpStorage.remove(mobileNumber);
-//                otpExpiryStorage.remove(mobileNumber);
-//                return "OTP verified successfully";
-//            }
-//        }
-//
-//        return "Invalid OTP";
-//    }
+
+    @PostMapping("/send-otp")
+    public String sendOtp(@RequestParam String mobileNumber) {
+    	String formattedNumber = "+91" + mobileNumber; // For India
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+        otpStorage.put(mobileNumber, otp);
+        otpExpiryStorage.put(mobileNumber, System.currentTimeMillis() + 5 * 60 * 1000);
+
+        Message.creator(
+                new PhoneNumber(formattedNumber),
+                new PhoneNumber(SENDER_PHONE_NUMBER),
+                "Your OTP is: " + otp
+        ).create();
+
+        return "OTP sent successfully";
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String mobileNumber, @RequestParam int otp) {
+        Integer storedOtp = otpStorage.get(mobileNumber);
+        Long expiryTime = otpExpiryStorage.get(mobileNumber);
+
+        if (storedOtp != null && expiryTime != null) {
+            if (System.currentTimeMillis() > expiryTime) {
+                otpStorage.remove(mobileNumber);
+                otpExpiryStorage.remove(mobileNumber);
+                return "OTP expired";
+            }
+
+            if (storedOtp == otp) {
+                otpStorage.remove(mobileNumber);
+                otpExpiryStorage.remove(mobileNumber);
+                return "OTP verified successfully";
+            }
+        }
+
+        return "Invalid OTP";
+    }
     
     
 
